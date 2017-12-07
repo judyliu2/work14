@@ -14,7 +14,7 @@ int main(int argc, char* argv[]){
  
   int sid;
   
-  if (!strcmp(argv[1], "-c") && argc >2 ){
+  if (!strcmp(argv[1], "-c") && argc == 3 ){
     printf("testing out -c N :\n");
     sid = semget(KEY, 4, IPC_CREAT |IPC_EXCL| 0600);
     if (sid == -1){
