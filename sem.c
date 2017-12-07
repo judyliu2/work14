@@ -1,41 +1,47 @@
-#include <sys/type.h>
+#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define KEY 11111
 
-int create_sem(int n){
-  int sid = semget(KEY, 4, IPC_CREAT | 600);
-  return semctl (sid, 0, SETVAL, n);
 
-}
 
-int get_val(int sid){
-  return semctl (sid, 0, GETVAl) ;
-}
 
-int rm_sem(int sid){
-  return semctl(sid, 0, IPC_RMID);  
-}
-
-char ** parse_args(char * s1){
-	char ** ret = (char **) calloc (800, sizeof(char*));
-	int i = 0;    
-
-	while (s1 && i < 799){
-	  char * string = strsep (&s1," ");
-	  ret[i] = string;
-	  i++;
-	}
-	ret[i] = NULL;
-	return ret;
-}
-
-int main(){
-  char* input = (char*)  calloc(100 ,sizeof(char));
-  fgets(input, 120, stdin);
+int main(int argc, char* argv[]){
+ 
+  int sid;
   
-  
+  if (!strcmp(argv[1], "-c") && argc >2 ){
+    printf("testing out -c N :\n");
+    sid = semget(KEY, 4, IPC_CREAT |IPC_EXCL| 0600);
+    if (sid == -1){
+      printf("Semaphore already exists.\n");
+    }
+    else{
+      
+      printf("Semaphore created: %d\n", sid);
+      printf("Semaphore value: %d\n", semctl(sid, 0, GETVAL));
+      
+    }
+    semctl(sid, 0 , SETVAL, atoi(argv[2]));
+  }
+  else if (!strcmp(argv[1], "-v")){
+    printf("testing out -v :\n");
+    sid = semget(KEY, 4, 0600);
+    printf("Semaphore value: %d\n", semctl(sid, 0, GETVAL));
+  }
+  else if (!strcmp(argv[1], "-r")){
+    printf("testing out -r:\n");
+    sid = semget(KEY, 4, 0600);
+    printf("Semaphore removed: %d\n", semctl(sid, 0, IPC_RMID));
+    
+  }
+  else{
+    printf("command is not recognized\n");
+  }
+
+  return 0;
 }
